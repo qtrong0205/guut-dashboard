@@ -1,18 +1,15 @@
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import {visionTool} from '@sanity/vision'
-import {schemaTypes} from './schemaTypes'
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import project from './schemas/project'
+import post from './schemas/post'
+import teamMember from './schemas/teamMember'
+import siteSettings from './schemas/siteSettings'
 
 export default defineConfig({
   name: 'default',
-  title: 'guu-t',
-
-  projectId: '08k96exq',
+  title: 'Guu & T',
+  projectId: '08k96exq',  
   dataset: 'production',
-
-  plugins: [structureTool(), visionTool()],
-
-  schema: {
-    types: schemaTypes,
-  },
+  plugins: [structureTool()],
+  schema: { types: [project, post, teamMember, siteSettings] },
 })
