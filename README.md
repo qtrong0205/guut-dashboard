@@ -4,12 +4,13 @@
 
 Đây là CMS cho dashboard của dự án **Guu & T**, xây dựng bằng **Sanity Studio**.
 
-Studio hiện quản lý 4 nhóm dữ liệu chính:
+Studio hiện có 5 schema types (4 document + 1 object):
 
-1. **project**: Dự án (tên, slug, ảnh, gallery, dịch vụ, diện tích, phong cách, địa điểm, năm, mô tả, nổi bật, liên quan).
-2. **post**: Tin tức/bài viết (tiêu đề, slug, ảnh hero, danh mục, ngày đăng, tóm tắt, nội dung, bài liên quan).
-3. **teamMember**: Thành viên đội ngũ (tên, chức vụ, ảnh, thứ tự hiển thị).
-4. **siteSettings**: Cấu hình website (liên hệ, social links, thống kê).
+1. **project** (document): Dự án (tên, slug, ảnh hero, gallery, dịch vụ, diện tích, phong cách, địa điểm, năm, mô tả ngắn, nổi bật, dự án liên quan).
+2. **post** (document): Tin tức/bài viết (tiêu đề, slug, ảnh hero, danh mục, ngày đăng, tóm tắt, nội dung, bài liên quan).
+3. **teamMember** (document): Thành viên đội ngũ (tên, chức vụ, ảnh, thứ tự hiển thị).
+4. **siteSettings** (document): Cấu hình website (tên cấu hình, banner theo trang).
+5. **bannerItem** (object): Banner (ảnh, tiêu đề, mô tả phụ).
 
 Thông tin project đang dùng trong code:
 
@@ -107,11 +108,14 @@ const data = await res.json()
   "_id": "project-abc123",
   "_type": "project",
   "title": "Biệt thự hiện đại Quận 2",
-  "slug": "biet-thu-hien-dai-quan-2",
-  "heroImageUrl": "https://cdn.sanity.io/images/.../hero.jpg",
-  "galleryUrls": [
-    "https://cdn.sanity.io/images/.../g1.jpg",
-    "https://cdn.sanity.io/images/.../g2.jpg"
+  "slug": {"_type": "slug", "current": "biet-thu-hien-dai-quan-2"},
+  "heroImage": {
+    "_type": "image",
+    "asset": {"_ref": "image-hero-abc123"}
+  },
+  "gallery": [
+    {"_type": "image", "asset": {"_ref": "image-g1-abc123"}},
+    {"_type": "image", "asset": {"_ref": "image-g2-abc123"}}
   ],
   "serviceType": "Nội Thất",
   "area": 350,
@@ -119,7 +123,11 @@ const data = await res.json()
   "location": "TP. Hồ Chí Minh",
   "year": 2025,
   "shortDesc": "Thiết kế và thi công trọn gói biệt thự cao cấp.",
-  "featured": true
+  "featured": true,
+  "relatedProjects": [
+    {"_type": "reference", "_ref": "project-001"},
+    {"_type": "reference", "_ref": "project-002"}
+  ]
 }
 ```
 
@@ -130,15 +138,22 @@ const data = await res.json()
   "_id": "post-xyz789",
   "_type": "post",
   "title": "Xu hướng nội thất 2026",
-  "slug": "xu-huong-noi-that-2026",
-  "heroImageUrl": "https://cdn.sanity.io/images/.../post-hero.jpg",
+  "slug": {"_type": "slug", "current": "xu-huong-noi-that-2026"},
+  "heroImage": {
+    "_type": "image",
+    "asset": {"_ref": "image-post-hero-xyz789"}
+  },
   "category": "Xu Hướng",
   "publishedAt": "2026-03-10T09:00:00Z",
   "summary": "Tổng hợp các xu hướng nội thất nổi bật năm 2026.",
   "body": [
-    {"_type": "block", "children": [{"_type": "span", "text": "Nội dung..."}]}
+    {"_type": "block", "children": [{"_type": "span", "text": "Nội dung..."}]},
+    {"_type": "image", "asset": {"_ref": "image-body-xyz789"}}
   ],
-  "relatedPosts": ["post-a", "post-b"]
+  "relatedPosts": [
+    {"_type": "reference", "_ref": "post-001"},
+    {"_type": "reference", "_ref": "post-002"}
+  ]
 }
 ```
 
@@ -150,7 +165,10 @@ const data = await res.json()
   "_type": "teamMember",
   "name": "Nguyễn Văn A",
   "position": "Kiến trúc sư trưởng",
-  "photoUrl": "https://cdn.sanity.io/images/.../member.jpg",
+  "photo": {
+    "_type": "image",
+    "asset": {"_ref": "image-member-001"}
+  },
   "order": 1
 }
 ```
@@ -159,20 +177,46 @@ const data = await res.json()
 
 ```json
 {
-  "_id": "siteSettings",
+  "_id": "siteSettings-001",
   "_type": "siteSettings",
-  "phone": "0901xxxxxx",
-  "email": "hello@guuandt.vn",
-  "address": "TP. Hồ Chí Minh, Việt Nam",
-  "zaloUrl": "https://zalo.me/...",
-  "facebookUrl": "https://facebook.com/...",
-  "instagramUrl": "https://instagram.com/...",
-  "stats": {
-    "projects": 120,
-    "years": 10,
-    "clients": 85,
-    "partners": 30
+  "title": "Bản chính",
+  "banners": {
+    "home": {
+      "image": {"_type": "image", "asset": {"_ref": "image-home-001"}},
+      "heading": "Guu & T Studio",
+      "subtext": "Không gian sống tinh tế và bền vững."
+    },
+    "about": {
+      "image": {"_type": "image", "asset": {"_ref": "image-about-001"}},
+      "heading": "Về chúng tôi",
+      "subtext": "Đội ngũ giàu kinh nghiệm trong thiết kế."
+    },
+    "project": {
+      "image": {"_type": "image", "asset": {"_ref": "image-project-001"}},
+      "heading": "Dự án nổi bật",
+      "subtext": "Tổng hợp các dự án tiêu biểu."
+    },
+    "news": {
+      "image": {"_type": "image", "asset": {"_ref": "image-news-001"}},
+      "heading": "Tin tức",
+      "subtext": "Xu hướng và kiến thức nội thất."
+    },
+    "contact": {
+      "image": {"_type": "image", "asset": {"_ref": "image-contact-001"}},
+      "heading": "Liên hệ",
+      "subtext": "Kết nối với Guu & T."
+    }
   }
+}
+```
+
+### 5) `bannerItem` (object)
+
+```json
+{
+  "image": {"_type": "image", "asset": {"_ref": "image-banner-001"}},
+  "heading": "Không gian sống mới",
+  "subtext": "Thiết kế tinh gọn, tối ưu công năng."
 }
 ```
 
@@ -199,6 +243,13 @@ const data = await res.json()
 
 // Cài đặt website (single document)
 *[_type == "siteSettings"][0]{
-  phone, email, address, zaloUrl, facebookUrl, instagramUrl, stats
+  title,
+  banners{
+    home{heading, subtext, "imageUrl": image.asset->url},
+    about{heading, subtext, "imageUrl": image.asset->url},
+    project{heading, subtext, "imageUrl": image.asset->url},
+    news{heading, subtext, "imageUrl": image.asset->url},
+    contact{heading, subtext, "imageUrl": image.asset->url}
+  }
 }
 ```
